@@ -58,6 +58,7 @@ double       ma_parse_dbl(const char * string, ma_status_t * status);
 float        ma_parse_flt(const char * string, ma_status_t * status);
 
 ma_scanner_t ma_scanner_create(FILE * istream, const char * delim);
+ma_scanner_t ma_scanner_create_default();
 
 void         ma_scanner_clear_input(ma_scanner_t * scanner);
 void         ma_scanner_clear_status(ma_scanner_t * scanner);
@@ -213,6 +214,10 @@ ma_scanner_t ma_scanner_create(FILE * istream, const char * delim) {
     if (delim == NULL) {out.delim = DEFAULT_DELIM;}
     else {out.delim = delim;}
     return out;
+}
+
+ma_scanner_t ma_scanner_create_default() {
+    return ma_scanner_create(stdin, NULL);
 }
 
 ma_status_t ma_scanner_status(ma_scanner_t * scanner) {
