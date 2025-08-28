@@ -272,7 +272,7 @@ size_t ma_scanner_get_str(ma_scanner_t * scanner, char * buffer, const size_t bu
         // Check for delimiter
         if (strchr(scanner->delim, c) != NULL) {
             if (token_length == 0) {continue;} // Skip leading delimiters
-            break;                        // Break when end of token found
+            break;                             // Break when end of token found
         }
 
         // Write char into the string
@@ -298,11 +298,12 @@ size_t ma_scanner_get_str(ma_scanner_t * scanner, char * buffer, const size_t bu
     return 0;
 }
 
+// Generate scanning functions definitions for each type
 #define X(name, variant, type, min, max)\
     type ma_scanner_get_##name (ma_scanner_t * sc) {\
         if (sc->status != MA_OK) {return (type)0;}\
         \
-        char buffer[512] = {0};\
+        char buffer[512] = {0}; /*Did you know DBL_MAX has more than 300 digits?*/\
         const size_t tkn_len = ma_scanner_get_str(sc, buffer, sizeof(buffer));\
         if (sc->status != MA_OK) {\
             goto TOKENIZATION_ERROR;\
