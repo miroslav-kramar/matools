@@ -37,7 +37,7 @@ int main() {
     // Create a scanner struct to hold all necessary context information.
     // Pass a pointer to a stream you want to scan. Second argument is delimiter,
     // pass NULL if you want to split on whitespace.
-    ma_scanner_t sc = ma_scanner_create(stdin, NULL);
+    ma_scanner_t sc = ma_scanner_create_default();
 
     int n;
     while (1) {

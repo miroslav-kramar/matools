@@ -14,7 +14,7 @@ int sc_plus_one(ma_scanner_t * sc) {
 }
 
 int main() {
-    ma_scanner_t sc = ma_scanner_create(stdin, NULL);
+    ma_scanner_t sc = ma_scanner_create_default();
     int i = sc_plus_one(&sc);
     if (!ma_scanner_status_ok(&sc)) {
         fprintf(stderr, "Error!\n");
