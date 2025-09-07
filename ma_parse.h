@@ -8,7 +8,7 @@ every basic data type.
 
 Usage:
     In one of your files, do:
-    #define MATOOLS_IMPLEMENTATION
+    #define MA_PARSE_IMPLEMENTATION
     #include "matools.h"
     ...
 
@@ -17,8 +17,8 @@ Usage:
     ...
 */
 
-#ifndef MATOOLS_H
-#define MATOOLS_H
+#ifndef MA_PARSE_H
+#define MA_PARSE_H
 
 #include <stdint.h>
 #include <stdio.h>
@@ -79,7 +79,7 @@ float        ma_scanner_get_flt(ma_scanner_t * scanner);
 void         ma_scanner_set_delim(ma_scanner_t * scanner, const char * delim);
 void         ma_scanner_set_delim_default(ma_scanner_t * scanner);
 
-ma_status_t  ma_scanner_status(ma_scanner_t * scanner);
+ma_status_t  ma_scanner_get_status(ma_scanner_t * scanner);
 bool         ma_scanner_status_ok(ma_scanner_t * scanner);
 bool         ma_scanner_status_eof(ma_scanner_t * scanner);
 bool         ma_scanner_status_ferror(ma_scanner_t * scanner);
@@ -90,7 +90,7 @@ bool         ma_scanner_status_range(ma_scanner_t * scanner);
 // IMPLEMENTATION
 // --------------
 
-#ifdef MATOOLS_IMPLEMENTATION
+#ifdef MA_PARSE_IMPLEMENTATION
 
 // includes
 
@@ -220,7 +220,7 @@ ma_scanner_t ma_scanner_create_default() {
     return ma_scanner_create(stdin, NULL);
 }
 
-ma_status_t ma_scanner_status(ma_scanner_t * scanner) {
+ma_status_t ma_scanner_get_status(ma_scanner_t * scanner) {
     return scanner->status;
 }
 
@@ -359,4 +359,4 @@ TYPES_LIST
 #undef STATUS_CODES
 #undef TYPES_LIST
 
-#endif // MATOOLS_H
+#endif // MA_PARSE_H

@@ -1,5 +1,5 @@
-#define MATOOLS_IMPLEMENTATION
-#include "../matools.h"
+#define MA_PARSE_IMPLEMENTATION
+#include "../ma_parse.h"
 #include <stdio.h>
 
 // The library expects there is only one scanner per stream.

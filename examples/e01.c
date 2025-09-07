@@ -1,5 +1,5 @@
-#define MATOOLS_IMPLEMENTATION
-#include "../matools.h"
+#define MA_PARSE_IMPLEMENTATION
+#include "../ma_parse.h"
 #include <stdio.h>
 
 int main() {
@@ -14,7 +14,7 @@ int main() {
             break;
         }
         if (!ma_scanner_status_ok(&sc)) {
-            printf("ERROR: %s\n", ma_status_get_str(ma_scanner_status(&sc)));
+            printf("ERROR: %s\n", ma_status_get_str(ma_scanner_get_status(&sc)));
             ma_scanner_clear_status(&sc);
             continue;
         }

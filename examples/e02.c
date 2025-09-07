@@ -1,6 +1,6 @@
 #include <stdio.h>
-#define MATOOLS_IMPLEMENTATION
-#include "../matools.h"
+#define MA_PARSE_IMPLEMENTATION
+#include "../ma_parse.h"
 
 int main() {
     ma_scanner_t sc = ma_scanner_create(stdin, ",");
