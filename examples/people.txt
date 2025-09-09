@@ -1,0 +1,4 @@
+John,Doe,30,1.85,New York
+Jane,Doe,25,1.80,Washington DC
+David,Smith,25,1.83,London
+Jan,Novak,30,1.78,Prague
