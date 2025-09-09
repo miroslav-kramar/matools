@@ -9,7 +9,7 @@ int main() {
     while (1) {
         n = ma_scanner_get_i32(&sc);
         ma_scanner_clear_input(&sc);
-        if (ma_scanner_status_ok(&sc)) {
+        if (ma_scanner_get_status(&sc) == MA_STATUS_OK) {
             break;
         }
         printf("ERROR: %s\n", ma_status_get_str(ma_scanner_get_status(&sc)));

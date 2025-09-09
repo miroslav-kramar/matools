@@ -7,7 +7,7 @@ int main() {
 
     printf("Please enter a number: ");
     int number = ma_scanner_get_i32(&sc);
-    if (!ma_scanner_status_ok(&sc)) {
+    if (ma_scanner_get_status(&sc) != MA_STATUS_OK) {
         printf("ERROR: %s\n", ma_status_get_str(ma_scanner_get_status(&sc)));
     }
     else {

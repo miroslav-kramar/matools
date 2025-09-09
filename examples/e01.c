@@ -10,10 +10,10 @@ int main() {
         const int n = ma_scanner_get_i32(&sc);
         ma_scanner_clear_input(&sc);
 
-        if (ma_scanner_status_eof(&sc)) {
+        if (ma_scanner_get_status(&sc) == MA_STATUS_STREAM_EOF) {
             break;
         }
-        if (!ma_scanner_status_ok(&sc)) {
+        if (ma_scanner_get_status(&sc) != MA_STATUS_OK) {
             printf("ERROR: %s\n", ma_status_get_str(ma_scanner_get_status(&sc)));
             ma_scanner_clear_status(&sc);
             continue;

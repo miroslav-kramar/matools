@@ -16,7 +16,7 @@ int sc_plus_one(ma_scanner_t * sc) {
 int main() {
     ma_scanner_t sc = ma_scanner_create_default();
     int i = sc_plus_one(&sc);
-    if (!ma_scanner_status_ok(&sc)) {
+    if (ma_scanner_get_status(&sc) != MA_STATUS_OK) {
         fprintf(stderr, "Error!\n");
     }
     else {

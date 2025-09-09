@@ -24,12 +24,18 @@ Usage:
 #include <stdio.h>
 #include <stdbool.h>
 
+// CODE, DESCRIPTION
+#define STATUS_CODES\
+    X(MA_STATUS_OK,                 "No error")      /*Everything okay*/\
+    X(MA_STATUS_STREAM_EOF,         "End of stream") /*EOF encountered on a stream*/\
+    X(MA_STATUS_STREAM_FERROR,      "Stream error")  /*Error occurred on a stream*/\
+    X(MA_STATUS_INPUT_INVALID,      "Invalid input") /*General invalid input error*/\
+    X(MA_STATUS_INPUT_OUT_OF_RANGE, "Out of range")  /*General out of range error*/
+
 typedef enum {
-    MA_OK = 0,        // Everything okay
-    MA_STREAM_EOF,    // EOF encountered on a stream
-    MA_STREAM_FERROR, // Error occurred on a stream
-    MA_INVALID_INPUT, // General invalid input error
-    MA_OUT_OF_RANGE   // General out of range error
+    #define X(code, desc) code,
+    STATUS_CODES
+    #undef X
 } ma_status_t;
 
 typedef struct {
@@ -80,11 +86,6 @@ void         ma_scanner_set_delim(ma_scanner_t * scanner, const char * delim);
 void         ma_scanner_set_delim_default(ma_scanner_t * scanner);
 
 ma_status_t  ma_scanner_get_status(ma_scanner_t * scanner);
-bool         ma_scanner_status_ok(ma_scanner_t * scanner);
-bool         ma_scanner_status_eof(ma_scanner_t * scanner);
-bool         ma_scanner_status_ferror(ma_scanner_t * scanner);
-bool         ma_scanner_status_invalid(ma_scanner_t * scanner);
-bool         ma_scanner_status_range(ma_scanner_t * scanner);
 
 // --------------
 // IMPLEMENTATION
@@ -117,13 +118,6 @@ bool         ma_scanner_status_range(ma_scanner_t * scanner);
     X(dbl,   floating, double,      -DBL_MAX,   DBL_MAX)\
     X(flt,   floating, float,       -FLT_MAX,   FLT_MAX)
 
-#define STATUS_CODES\
-    X(MA_OK,             ok,      "OK")\
-    X(MA_STREAM_EOF,     eof,     "End of stream")\
-    X(MA_STREAM_FERROR,  ferror,  "Stream error")\
-    X(MA_INVALID_INPUT,  invalid, "Invalid input")\
-    X(MA_OUT_OF_RANGE,   range,   "Out of range")
-
 #define signed_t   int64_t
 #define unsigned_t uint64_t
 #define floating_t long double
@@ -132,7 +126,7 @@ bool         ma_scanner_status_range(ma_scanner_t * scanner);
 
 #define SET_STATUS(status, code)\
 	do {\
-		if (status && *status == MA_OK) {*status = code;}\
+		if (status && *status == MA_STATUS_OK) {*status = code;}\
 	} while (0)
 
 // -----------------
@@ -141,7 +135,7 @@ bool         ma_scanner_status_range(ma_scanner_t * scanner);
 
 const char * ma_status_get_str(ma_status_t status) {
     switch (status) {
-        #define X(code, name, msg) case code: return msg;
+        #define X(code, desc) case code: return desc;
         STATUS_CODES
         #undef X
         default: return "Unknown status code";
@@ -190,11 +184,11 @@ const char * ma_status_get_str(ma_status_t status) {
         return (type) value;\
         \
         INVALID_TOKEN:\
-        SET_STATUS(status, MA_INVALID_INPUT);\
+        SET_STATUS(status, MA_STATUS_INPUT_INVALID);\
         return 0;\
         \
         OUT_OF_RANGE:\
-        SET_STATUS(status, MA_OUT_OF_RANGE);\
+        SET_STATUS(status, MA_STATUS_INPUT_OUT_OF_RANGE);\
         return 0;\
     }
 TYPES_LIST
@@ -209,7 +203,7 @@ TYPES_LIST
 ma_scanner_t ma_scanner_create(FILE * istream, const char * delim) {
     ma_scanner_t out;
     out.istream = istream;
-    out.status = MA_OK;
+    out.status = MA_STATUS_OK;
     out.newline_found = false;
     if (delim == NULL) {out.delim = DEFAULT_DELIM;}
     else {out.delim = delim;}
@@ -224,16 +218,8 @@ ma_status_t ma_scanner_get_status(ma_scanner_t * scanner) {
     return scanner->status;
 }
 
-// Generate status code getters
-#define X(code, name, msg)\
-    bool ma_scanner_status_##name(ma_scanner_t * scanner) {\
-        return scanner->status == code;\
-    }
-STATUS_CODES
-#undef X
-
 void ma_scanner_clear_status(ma_scanner_t * scanner) {
-    scanner->status = MA_OK;
+    scanner->status = MA_STATUS_OK;
 }
 
 void ma_scanner_set_delim(ma_scanner_t * scanner, const char * delim) {
@@ -254,9 +240,9 @@ void ma_scanner_clear_input(ma_scanner_t * scanner) {
 }
 
 size_t ma_scanner_get_str(ma_scanner_t * scanner, char * buffer, const size_t buffer_length) {
-    if (scanner->status != MA_OK) {return 0;}
+    if (scanner->status != MA_STATUS_OK) {return 0;}
     if (buffer_length == 0) {
-        scanner->status = MA_OUT_OF_RANGE;
+        scanner->status = MA_STATUS_INPUT_OUT_OF_RANGE;
         return 0;
     }
 
@@ -286,7 +272,7 @@ size_t ma_scanner_get_str(ma_scanner_t * scanner, char * buffer, const size_t bu
         	buffer[token_length++] = (char) c;
         }
         else {
-            scanner->status = MA_OUT_OF_RANGE;
+            scanner->status = MA_STATUS_INPUT_OUT_OF_RANGE;
         }
     }
 
@@ -295,22 +281,22 @@ size_t ma_scanner_get_str(ma_scanner_t * scanner, char * buffer, const size_t bu
     return token_length;
 
     ERR_EOF_NO_CHAR:
-    scanner->status = MA_STREAM_EOF;
+    scanner->status = MA_STATUS_STREAM_EOF;
     return 0;
 
     ERR_FERROR:
-    scanner->status = MA_STREAM_FERROR;
+    scanner->status = MA_STATUS_STREAM_FERROR;
     return 0;
 }
 
 // Generate scanning functions definitions for each type
 #define X(name, variant, type, min, max)\
     type ma_scanner_get_##name (ma_scanner_t * sc) {\
-        if (sc->status != MA_OK) {return (type)0;}\
+        if (sc->status != MA_STATUS_OK) {return (type)0;}\
         \
         char buffer[512] = {0}; /*Did you know DBL_MAX has more than 300 digits?*/\
         const size_t tkn_len = ma_scanner_get_str(sc, buffer, sizeof(buffer));\
-        if (sc->status != MA_OK) {\
+        if (sc->status != MA_STATUS_OK) {\
             goto TOKENIZATION_ERROR;\
         }\
         if (tkn_len == 0) {\
@@ -318,14 +304,14 @@ size_t ma_scanner_get_str(ma_scanner_t * scanner, char * buffer, const size_t bu
         }\
         \
         const type value = ma_parse_##name(buffer, &sc->status);\
-        if (sc->status != MA_OK) {\
+        if (sc->status != MA_STATUS_OK) {\
             goto PARSING_ERROR;\
         }\
         \
         return value;\
         \
         INVALID_TOKEN:\
-        sc->status = MA_INVALID_INPUT;\
+        sc->status = MA_STATUS_INPUT_INVALID;\
         PARSING_ERROR:\
         TOKENIZATION_ERROR:\
         return 0;\
